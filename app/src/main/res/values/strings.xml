@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">pecode test app</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="create_notification">Create new notification</string>
     <string name="channel_description">des</string>
@@ -9,4 +8,6 @@
     <string name="notification_channel">regId</string>
     <string name="continue_registration_message">message</string>
     <string name="continue_registration_title">title</string>
+    <string name="addFragment">Add</string>
+    <string name="removeFragment">Remove</string>
 </resources>

@@ -13,32 +13,28 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.pecodetestapp.MainActivity
 import com.example.pecodetestapp.R
+
 
 class NotificationPagerAdapter(private val context: Context, private val fragments: List<Fragment>):
     RecyclerView.Adapter<NotificationPagerAdapter.PagerViewHolder>() {
 
     class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val notificationButton  = itemView.findViewById<Button>(R.id.notificationButton)
+        val notificationButton: Button = itemView.findViewById(R.id.notificationButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PagerViewHolder {
         return PagerViewHolder(LayoutInflater.from(context).inflate(R.layout.fragment_notification, parent, false))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onBindViewHolder(holder: PagerViewHolder, position: Int) {
         holder.notificationButton.setOnClickListener {
             createNotificationChannel()
-            showContinueRegistrationNotification(position)
+            showNotification(position)
             Log.e("TAG", "Shown") }
     }
 
@@ -46,15 +42,22 @@ class NotificationPagerAdapter(private val context: Context, private val fragmen
         return fragments.size
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun showContinueRegistrationNotification(position: Int) {
-        val channelId = "all_notifications" // Use same Channel ID
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this.context, 0, intent, 0);
-        val builder = NotificationCompat.Builder(context, channelId) // Create notification with channel Id
+    private fun showNotification(position: Int) {
+        val channelId = "all_notifications"
+        val resultIntent = Intent(context, MainActivity::class.java)
+        resultIntent.putExtra("notification_id", position)
+
+        val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(context)
+        stackBuilder.addParentStack(MainActivity::class.java)
+        stackBuilder.addNextIntent(resultIntent)
+
+        val pendingIntent: PendingIntent? =
+            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_baseline_add_24)
-            .setContentTitle("My notification")
-            .setContentText("Notification $position")
+            .setContentTitle("You create a notification")
+            .setContentText(String.format("Notification %d", position + 1))
             .setPriority(NotificationCompat.PRIORITY_MAX)
         builder.setContentIntent(pendingIntent).setAutoCancel(true)
         val mNotificationManager =
@@ -79,5 +82,4 @@ class NotificationPagerAdapter(private val context: Context, private val fragmen
             notificationManager.createNotificationChannel(mChannel)
         }
     }
-
 }

@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
     private lateinit var fabAdd: FloatingActionButton
     private lateinit var fabRemove: FloatingActionButton
+    private lateinit var fragmentCountText: TextView
     private lateinit var fragments: ArrayList<Fragment>
 
     private val TAG = MainActivity::class.java.canonicalName
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         viewPager = findViewById(R.id.viewPager)
         fabAdd = findViewById(R.id.fabAdd)
         fabRemove = findViewById(R.id.fabRemove)
+        fragmentCountText = findViewById(R.id.fragmentsCountText)
 
         fabAdd.setOnClickListener(fabAddListener)
         fabRemove.setOnClickListener(fabRemoveListener)
@@ -50,16 +53,28 @@ class MainActivity : AppCompatActivity() {
         mainViewModel.observeFragmentList().observe(this,
             { fragmentList ->
                 if (fragmentList != null){
-                    Log.e(TAG, "List changed the size")
-                    val pagerAdapter = NotificationPagerAdapter(applicationContext, fragmentList)
-                    viewPager.adapter = pagerAdapter
                     fragments = fragmentList
+                    Log.e(TAG, "List changed the size")
+                    val pagerAdapter = NotificationPagerAdapter(applicationContext, fragments)
+                    viewPager.adapter = pagerAdapter
+
+                    val size = fragments.size
+                    if(size == 0){
+                        fabRemove.visibility = View.GONE
+                    }else{
+                        fabRemove.visibility = View.VISIBLE
+                    }
+                    fragmentCountText.text = size.toString()
+
+                    val itemPosition = intent.getIntExtra("notification_id", 0)
+                    viewPager.currentItem = itemPosition
                 }
             })
     }
 
     private val fabAddListener = View.OnClickListener {
-       mainViewModel.addFragment(NotificationFragment(applicationContext))
+        fabRemove.visibility = View.VISIBLE
+        mainViewModel.addFragment(NotificationFragment(applicationContext))
     }
 
     private val fabRemoveListener = View.OnClickListener {
@@ -68,6 +83,10 @@ class MainActivity : AppCompatActivity() {
         notificationManager.cancel(notificationId)
         Log.e(TAG, String.format("Notification/fragment removed id: %d", notificationId))
         mainViewModel.removeLastFragment()
+
+        if(fragments.size == 0){
+            fabRemove.visibility = View.GONE
+        }
     }
 
     @SuppressLint("CommitPrefEdits")
