@@ -22,4 +22,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun removeLastFragment() {
         repository.removeLastFragment()
     }
+
+    fun saveFragments() {
+        repository.saveFragments()
+    }
 }
