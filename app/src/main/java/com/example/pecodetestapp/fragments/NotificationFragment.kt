@@ -1,6 +1,5 @@
 package com.example.pecodetestapp.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.example.pecodetestapp.R
 
 
-class NotificationFragment(val contextFrag: Context) : Fragment() {
+class NotificationFragment : Fragment() {
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

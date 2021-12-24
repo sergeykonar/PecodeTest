@@ -11,7 +11,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.Fragment
@@ -22,6 +21,8 @@ import com.example.pecodetestapp.R
 
 class NotificationPagerAdapter(private val context: Context, private val fragments: List<Fragment>):
     RecyclerView.Adapter<NotificationPagerAdapter.PagerViewHolder>() {
+
+    private val TAG = NotificationPagerAdapter::class.java.canonicalName
 
     class PagerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val notificationButton: Button = itemView.findViewById(R.id.notificationButton)
@@ -35,7 +36,7 @@ class NotificationPagerAdapter(private val context: Context, private val fragmen
         holder.notificationButton.setOnClickListener {
             createNotificationChannel()
             showNotification(position)
-            Log.e("TAG", "Shown") }
+            Log.e(TAG, "Shown") }
     }
 
     override fun getItemCount(): Int {
@@ -45,15 +46,12 @@ class NotificationPagerAdapter(private val context: Context, private val fragmen
     private fun showNotification(position: Int) {
         val channelId = "all_notifications"
         val resultIntent = Intent(context, MainActivity::class.java)
-        resultIntent.putExtra("notification_id", position)
+        resultIntent.action = (position.toString())
 
         val stackBuilder: TaskStackBuilder = TaskStackBuilder.create(context)
-        stackBuilder.addParentStack(MainActivity::class.java)
-        stackBuilder.addNextIntent(resultIntent)
+        stackBuilder.addNextIntentWithParentStack(resultIntent)
 
-        val pendingIntent: PendingIntent? =
-            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
-
+        val pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_baseline_add_24)
             .setContentTitle("You create a notification")

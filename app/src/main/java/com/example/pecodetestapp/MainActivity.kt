@@ -3,7 +3,6 @@ package com.example.pecodetestapp
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -45,8 +44,17 @@ class MainActivity : AppCompatActivity() {
         fabRemove = findViewById(R.id.fabRemove)
         fragmentCountText = findViewById(R.id.fragmentsCountText)
 
+        viewPager.registerOnPageChangeCallback(scrollCallback)
         fabAdd.setOnClickListener(fabAddListener)
         fabRemove.setOnClickListener(fabRemoveListener)
+    }
+
+    private val scrollCallback = object: ViewPager2.OnPageChangeCallback(){
+        override fun onPageSelected(position: Int) {
+            super.onPageSelected(position)
+            val i = (position + 1).toString()
+            fragmentCountText.text = i
+        }
     }
 
     private fun subscribeObservers(){
@@ -64,17 +72,22 @@ class MainActivity : AppCompatActivity() {
                     }else{
                         fabRemove.visibility = View.VISIBLE
                     }
-                    fragmentCountText.text = size.toString()
 
-                    val itemPosition = intent.getIntExtra("notification_id", 0)
-                    viewPager.currentItem = itemPosition
+                    try{
+                        val i = intent.action.toString()
+                        Log.e(TAG, i)
+                        viewPager.currentItem = i.toInt()
+                    }
+                    catch (exception: NumberFormatException){
+                        Log.e(TAG, String.format("Open a notification. %s.", exception.message.toString()))
+                    }
                 }
             })
     }
 
     private val fabAddListener = View.OnClickListener {
         fabRemove.visibility = View.VISIBLE
-        mainViewModel.addFragment(NotificationFragment(applicationContext))
+        mainViewModel.addFragment(NotificationFragment())
     }
 
     private val fabRemoveListener = View.OnClickListener {
@@ -89,7 +102,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("CommitPrefEdits")
     override fun onStop() {
         super.onStop()
         mainViewModel.saveFragments()

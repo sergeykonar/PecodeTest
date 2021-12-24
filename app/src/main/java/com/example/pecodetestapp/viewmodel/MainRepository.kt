@@ -1,15 +1,12 @@
 package com.example.pecodetestapp.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import com.example.pecodetestapp.fragments.NotificationFragment
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 class MainRepository (val application: Application){
 
@@ -30,12 +27,14 @@ class MainRepository (val application: Application){
     fun addFragment(fragment: Fragment){
         fragmentList.add(fragment)
         data.postValue(fragmentList)
+        saveFragments()
     }
 
     fun removeLastFragment() {
         try{
             fragmentList.removeAt(fragmentList.size - 1)
             data.postValue(fragmentList)
+            saveFragments()
         }catch (exception: ArrayIndexOutOfBoundsException){
             exception.message?.let { Log.e(TAG, String.format("The list is already empty: %s", it)) }
         }
@@ -44,7 +43,7 @@ class MainRepository (val application: Application){
     private fun getFragments(){
         val i = sharedPreferences.getInt("fragmentsCount", 0)
         for (k in 0 until i){
-            addFragment(NotificationFragment(application.applicationContext))
+            addFragment(NotificationFragment())
             Log.d(TAG, "Restored fragment id: $k")
         }
     }
